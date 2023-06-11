@@ -1,0 +1,20 @@
+---
+- hosts: all
+  tasks:
+    - name: Get disk space available
+      command: df -h
+      register: disk_usage
+    - name: Check disk space available
+      shell: df -h / | awk 'NR==2 {print $5}'
+      register: disk_usage
+
+    - name: Send Discord message
+      uri:
+        url: "{{ lookup ('env', 'DISCORD_DISK_USAGE_WEBHOOK') }}"
+        method: POST
+        body_format: json
+        body: '{"content": "Disk usage on {{ inventory_hostname }} is {{ disk_usage.stdout}}"}'
+        headers:
+          Content-Type: "application/json"
+        status_code: 204
+      # when: disk_usage.stdout[:-1]|int > 80
