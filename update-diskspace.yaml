@@ -14,8 +14,8 @@
         url: "{{ lookup ('env', 'DISCORD_DISK_USAGE_WEBHOOK') }}"
         method: POST
         body_format: json
-        body: '{"content": "Disk usage on {{ inventory_hostname }} is {{ disk_usage.stdout}}"}'
+        body: '{"content": "@everyone Disk usage on {{ inventory_hostname }} is {{ disk_usage.stdout}}!"}'
         headers:
           Content-Type: "application/json"
         status_code: 204
-      # when: disk_usage.stdout[:-1]|int > 80
+      when: disk_usage.stdout[:-1]|int > 80
