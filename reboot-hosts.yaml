@@ -1,0 +1,29 @@
+---
+- name: Restart all hosts and ensure they're up
+  hosts: all
+  serial: 1
+  tasks:
+    - block:
+        - name: Restart host
+          reboot:
+            reboot_timeout: 300
+
+        - name: Wait for host to come back up
+          wait_for:
+            host: "{{ ansible_host | default(inventory_hostname) }}"
+            port: 22
+            state: started
+            delay: 60
+            timeout: 300
+          delegate_to: localhost
+
+      rescue:
+        - name: Send Discord message
+          uri:
+            url: "{{ lookup ('env', 'DISCORD_REBOOT_FAILED_WEBHOOK') }}"
+            method: POST
+            headers:
+              Content-Type: "application/json"
+            body_format: json
+            body: '{"content": "@everyone Reboot failed on {{ ansible_host | default(inventory_hostname) }}: {{ ansible_failed_result }}!"}'
+          delegate_to: localhost
