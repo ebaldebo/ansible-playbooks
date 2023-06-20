@@ -9,10 +9,9 @@
           become: yes
           reboot:
             reboot_timeout: 300
-            pre_reboot_delay: 5
+            pre_reboot_delay: 0
             post_reboot_delay: 30
             test_command: uptime
-            test_command_retries: 5
 
       rescue:
         - name: Send Discord message
